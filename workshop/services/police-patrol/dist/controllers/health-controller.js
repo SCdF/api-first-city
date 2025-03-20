@@ -1,11 +1,14 @@
-import { Router } from 'express';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HealthController = void 0;
+const express_1 = require("express");
 /**
  * Controller for health check endpoint
  */
-export class HealthController {
+class HealthController {
     constructor(version = '1.0.0') {
         this.version = version;
-        this.router = Router();
+        this.router = (0, express_1.Router)();
         this.setupRoutes();
     }
     /**
@@ -31,3 +34,4 @@ export class HealthController {
         });
     }
 }
+exports.HealthController = HealthController;

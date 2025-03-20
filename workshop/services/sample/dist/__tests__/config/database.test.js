@@ -1,7 +1,10 @@
-import { describe, it, beforeAll, afterAll, expect } from 'vitest';
-import { DataSource } from 'typeorm';
-import { ResourceEntity } from '../../models/resource.entity';
-import { setupTestDatabase, clearTestData, teardownTestDatabase } from '../helpers/database';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.initializeTestDatabase = void 0;
+const vitest_1 = require("vitest");
+const typeorm_1 = require("typeorm");
+const resource_entity_1 = require("../../models/resource.entity");
+const database_1 = require("../helpers/database");
 /**
  * Test database configuration that uses a separate database for testing.
  * This ensures tests don't interfere with development data.
@@ -13,55 +16,56 @@ const testConfig = {
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: `${process.env.DB_DATABASE || 'sample_service'}_test`,
-    entities: [ResourceEntity],
+    entities: [resource_entity_1.ResourceEntity],
     migrations: ['../../src/migrations/*.ts'],
     migrationsRun: true,
     dropSchema: true,
     synchronize: true,
     logging: true,
 };
-const testDataSource = new DataSource(testConfig);
-export default testDataSource;
-export const initializeTestDatabase = async () => {
+const testDataSource = new typeorm_1.DataSource(testConfig);
+exports.default = testDataSource;
+const initializeTestDatabase = async () => {
     if (!testDataSource.isInitialized) {
         await testDataSource.initialize();
     }
     return testDataSource;
 };
-describe('Database Configuration', () => {
+exports.initializeTestDatabase = initializeTestDatabase;
+(0, vitest_1.describe)('Database Configuration', () => {
     let dataSource;
-    beforeAll(async () => {
-        dataSource = await setupTestDatabase();
+    (0, vitest_1.beforeAll)(async () => {
+        dataSource = await (0, database_1.setupTestDatabase)();
     });
-    afterAll(async () => {
-        await teardownTestDatabase();
+    (0, vitest_1.afterAll)(async () => {
+        await (0, database_1.teardownTestDatabase)();
     });
-    it('should initialize database connection', () => {
-        expect(dataSource.isInitialized).toBe(true);
+    (0, vitest_1.it)('should initialize database connection', () => {
+        (0, vitest_1.expect)(dataSource.isInitialized).toBe(true);
     });
-    it('should have correct configuration', () => {
-        expect(dataSource.options.type).toBe('postgres');
-        expect(dataSource.options.entities).toContain(ResourceEntity);
-        expect(dataSource.options.migrations).toEqual(['src/migrations/*.ts']);
-        expect(dataSource.options.migrationsRun).toBe(true);
-        expect(dataSource.options.dropSchema).toBe(true);
-        expect(dataSource.options.synchronize).toBe(false);
+    (0, vitest_1.it)('should have correct configuration', () => {
+        (0, vitest_1.expect)(dataSource.options.type).toBe('postgres');
+        (0, vitest_1.expect)(dataSource.options.entities).toContain(resource_entity_1.ResourceEntity);
+        (0, vitest_1.expect)(dataSource.options.migrations).toEqual(['src/migrations/*.ts']);
+        (0, vitest_1.expect)(dataSource.options.migrationsRun).toBe(true);
+        (0, vitest_1.expect)(dataSource.options.dropSchema).toBe(true);
+        (0, vitest_1.expect)(dataSource.options.synchronize).toBe(false);
     });
-    it('should have resource entity registered', () => {
+    (0, vitest_1.it)('should have resource entity registered', () => {
         const entityMetadata = dataSource.entityMetadatas.find((metadata) => metadata.name === 'ResourceEntity');
-        expect(entityMetadata).toBeDefined();
+        (0, vitest_1.expect)(entityMetadata).toBeDefined();
     });
-    it('should clear test data successfully', async () => {
+    (0, vitest_1.it)('should clear test data successfully', async () => {
         // Create a test resource
-        const repository = dataSource.getRepository(ResourceEntity);
+        const repository = dataSource.getRepository(resource_entity_1.ResourceEntity);
         await repository.save({
             name: 'Test Resource',
             status: 'pending'
         });
         // Clear the data
-        await clearTestData();
+        await (0, database_1.clearTestData)();
         // Verify the data is cleared
         const count = await repository.count();
-        expect(count).toBe(0);
+        (0, vitest_1.expect)(count).toBe(0);
     });
 });

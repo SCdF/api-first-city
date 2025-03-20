@@ -1,3 +1,24 @@
 
 ⏳ Generating from api/openapi.yaml
 🚀 Done! Your output is in ./src/generated
+[91merror[0m[90m TS6053: [0mFile '/Users/stefan.dufresne/ovotech/api-first-city/workshop/services/sample/src/generated/schemas.gen.ts' not found.
+  The file is in the program because:
+    Matched by include pattern 'src/**/*' in 'tsconfig.json'
+
+  [96mtsconfig.json[0m:[93m21[0m:[93m15[0m
+    [7m21[0m   "include": ["src/**/*"],
+    [7m  [0m [96m              ~~~~~~~~~~[0m
+    File is matched by include pattern specified here.
+
+[91merror[0m[90m TS6053: [0mFile '/Users/stefan.dufresne/ovotech/api-first-city/workshop/services/sample/src/generated/transformers.gen.ts' not found.
+  The file is in the program because:
+    Matched by include pattern 'src/**/*' in 'tsconfig.json'
+
+  [96mtsconfig.json[0m:[93m21[0m:[93m15[0m
+    [7m21[0m   "include": ["src/**/*"],
+    [7m  [0m [96m              ~~~~~~~~~~[0m
+    File is matched by include pattern specified here.
+
+
+Found 2 errors.
+

@@ -1,31 +1,39 @@
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
-import { ResourceEntity } from '../models/resource.entity';
-import config from '../config';
-import { Logger } from '@city-services/common';
-const logger = new Logger({ service: config.serviceName });
-export const dataSource = new DataSource({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.initializeDatabase = exports.dataSource = exports.dataSourceOptions = void 0;
+require("reflect-metadata");
+const typeorm_1 = require("typeorm");
+const resource_entity_1 = require("../models/resource.entity");
+const config_1 = __importDefault(require("./config"));
+const common_1 = require("@city-services/common");
+const logger = new common_1.Logger({ service: config_1.default.serviceName });
+exports.dataSourceOptions = {
     type: 'postgres',
-    host: config.db.host,
-    port: config.db.port,
-    username: config.db.username,
-    password: config.db.password,
-    database: config.db.database,
-    synchronize: config.environment === 'development',
-    logging: config.environment === 'development',
-    entities: [ResourceEntity],
-    migrations: ['src/migrations/*.ts'],
-});
-export default dataSource;
-export const initializeDatabase = async () => {
+    host: config_1.default.db.host,
+    port: config_1.default.db.port,
+    username: config_1.default.db.username,
+    password: config_1.default.db.password,
+    database: config_1.default.db.database,
+    synchronize: config_1.default.environment === 'development',
+    logging: config_1.default.environment === 'development',
+    entities: [resource_entity_1.PolicePatrolEntity],
+    migrations: ['../../migrations/*.{ts,js}'],
+    migrationsRun: true,
+};
+exports.dataSource = new typeorm_1.DataSource(exports.dataSourceOptions);
+// export default dataSource;
+const initializeDatabase = async () => {
     try {
-        logger.info(`Attempting to connect to database at ${config.db.host}:${config.db.port}/${config.db.database}`);
-        logger.info(`Database connection details: Host=${config.db.host}, Port=${config.db.port}, User=${config.db.username}, Database=${config.db.database}`);
-        if (!dataSource.isInitialized) {
-            await dataSource.initialize();
+        logger.info(`Attempting to connect to database at ${config_1.default.db.host}:${config_1.default.db.port}/${config_1.default.db.database}`);
+        logger.info(`Database connection details: Host=${config_1.default.db.host}, Port=${config_1.default.db.port}, User=${config_1.default.db.username}, Database=${config_1.default.db.database}`);
+        if (!exports.dataSource.isInitialized) {
+            await exports.dataSource.initialize();
             logger.info('Database connection established successfully');
         }
-        return dataSource;
+        return exports.dataSource;
     }
     catch (error) {
         logger.error('Error connecting to database', error instanceof Error ? error : new Error(String(error)));
@@ -34,3 +42,4 @@ export const initializeDatabase = async () => {
         throw error;
     }
 };
+exports.initializeDatabase = initializeDatabase;

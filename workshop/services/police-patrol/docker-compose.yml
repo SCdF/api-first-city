@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  sample-service-db:
+  police-service-db:
     image: postgres:16
-    container_name: sample_service_db
+    container_name: police_service_db
     restart: always
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -14,7 +14,7 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,17 +26,17 @@ services:
           memory: 256M
           cpus: '0.2'
 
-  sample-service:
-    image: city-services/services-sample
+  police-service:
+    image: city-services/services-police-patrol
     build:
       context: ../../
-      dockerfile: services/sample/Dockerfile
+      dockerfile: services/police-patrol/Dockerfile
       args:
-        - PACKAGE_PATH=services/sample
-    container_name: sample_service
+        - PACKAGE_PATH=services/police-patrol
+    container_name: police_service
     restart: always
     ports:
-      - "${EXTERNAL_PORT:-3010}:${PORT:-3000}"
+      - '${EXTERNAL_PORT:-3010}:${PORT:-3000}'
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=${PORT:-3000}
@@ -45,17 +45,17 @@ services:
       - PUBSUB_EMULATOR_HOST=${PUBSUB_EMULATOR_HOST:-pubsub-emulator:8085}
       - PUBSUB_PROJECT_ID=${PUBSUB_PROJECT_ID:-city-services}
       - LOG_LEVEL=${LOG_LEVEL:-info}
-      - DB_HOST=${DB_HOST:-sample-service-db}
+      - DB_HOST=${DB_HOST:-police-service-db}
       - DB_PORT=${DB_PORT:-5432}
       - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_DATABASE=${DB_DATABASE:-sample_service}
+      - DB_DATABASE=${DB_DATABASE:-police_service}
     volumes:
-      - ./src:/app/services/sample/src
-      - ./api:/app/services/sample/api
+      - ./src:/app/services/police-patrol/src
+      - ./api:/app/services/police-patrol/api
       - ../../common:/app/common
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:${PORT:-3000}/health"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:${PORT:-3000}/health']
       interval: 30s
       timeout: 3s
       retries: 3
@@ -65,7 +65,7 @@ services:
         condition: service_started
       iam-service:
         condition: service_started
-      sample-service-db:
+      police-service-db:
         condition: service_healthy
     networks:
       - frontend
@@ -78,8 +78,8 @@ services:
     # API Documentation is available at http://localhost:${EXTERNAL_PORT:-3010}/api-docs
 
 volumes:
-  sample_service_db_data:
-    name: sample_service_db_data
+  police_service_db_data:
+    name: police_service_db_data
 
 networks:
   frontend:
@@ -87,4 +87,4 @@ networks:
     external: true
   default:
     name: city-services-network
-    external: true 
+    external: true

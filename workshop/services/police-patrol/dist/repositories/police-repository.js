@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceRepository = void 0;
 const database_1 = require("../config/database");
 const resource_entity_1 = require("../models/resource.entity");
-const types_gen_1 = require("../generated/types.gen");
 /**
  * Repository class for managing resource entities in the database.
  * Provides data access methods and implements TypeORM repository pattern.
@@ -13,14 +12,14 @@ const types_gen_1 = require("../generated/types.gen");
 class ResourceRepository {
     /**
      * Creates an instance of ResourceRepository.
-     * Initializes the TypeORM repository for ResourceEntity.
+     * Initializes the TypeORM repository for PolicePatrolEntity.
      *
      * @constructor
      * @param {DataSource} [customDataSource] - Optional custom data source for testing
      */
     constructor(customDataSource) {
         this.dataSource = customDataSource || database_1.dataSource;
-        this.repository = this.dataSource.getRepository(resource_entity_1.ResourceEntity);
+        this.repository = this.dataSource.getRepository(resource_entity_1.PolicePatrolEntity);
     }
     /**
      * Gets the repository instance for the current transaction context.
@@ -28,27 +27,33 @@ class ResourceRepository {
      *
      * @private
      * @param {QueryRunner} [queryRunner] - Optional query runner for transaction context
-     * @returns {Repository<ResourceEntity>} The repository instance to use
+     * @returns {Repository<PolicePatrolEntity>} The repository instance to use
      */
     getRepository(queryRunner) {
-        return queryRunner ? queryRunner.manager.getRepository(resource_entity_1.ResourceEntity) : this.repository;
+        return queryRunner ? queryRunner.manager.getRepository(resource_entity_1.PolicePatrolEntity) : this.repository;
     }
     /**
-     * Maps a ResourceEntity to a Resource type.
+     * Maps a PolicePatrolEntity to a Resource type.
      *
      * @private
-     * @param {ResourceEntity} entity - The entity to map
+     * @param {PolicePatrolEntity} entity - The entity to map
      * @returns {Resource} The mapped resource
      */
     mapEntityToResource(entity) {
         return {
             id: entity.id,
-            name: entity.name,
-            description: entity.description ?? '',
-            status: entity.status,
-            tags: entity.tags,
+            caseId: entity.caseId,
+            location: entity.location,
+            startedAt: entity.startedAt instanceof Date ? entity.startedAt : new Date(entity.startedAt),
+            endedAt: entity.endedAt
+                ? entity.endedAt instanceof Date
+                    ? entity.endedAt
+                    : new Date(entity.endedAt)
+                : undefined,
+            patrolType: entity.patrolType,
+            callType: entity.callType,
             createdAt: entity.createdAt instanceof Date ? entity.createdAt : new Date(entity.createdAt),
-            updatedAt: entity.updatedAt instanceof Date ? entity.updatedAt : new Date(entity.updatedAt)
+            updatedAt: entity.updatedAt instanceof Date ? entity.updatedAt : new Date(entity.updatedAt),
         };
     }
     /**
@@ -109,7 +114,7 @@ class ResourceRepository {
         const entity = repository.create({
             ...data,
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
         });
         const saved = await repository.save(entity);
         return this.mapEntityToResource(saved);
@@ -131,7 +136,7 @@ class ResourceRepository {
         }
         const updated = repository.merge(existing, {
             ...data,
-            updatedAt: new Date()
+            updatedAt: new Date(),
         });
         const saved = await repository.save(updated);
         return this.mapEntityToResource(saved);
@@ -157,14 +162,16 @@ class ResourceRepository {
      * @returns {Promise<void>} A promise that resolves when seeding is complete
      */
     async seed(count = 10) {
-        const statuses = Object.values(types_gen_1.ResourceStatus);
         for (let i = 0; i < count; i++) {
-            const status = statuses[i % statuses.length];
             const partialEntity = {
-                name: `Resource ${i + 1}`,
-                description: `This is a sample resource ${i + 1}`,
-                status: status, // Cast to ensure type safety
-                tags: [`tag-${i % 3}`, `sample`, `type-${i % 5}`],
+                caseId: `CASE-${Math.floor(1000 + Math.random() * 9000)}`,
+                location: `Location ${i + 1}`,
+                startedAt: new Date(),
+                endedAt: Math.random() > 0.5 ? new Date(Date.now() + Math.random() * 10000000) : undefined,
+                patrolType: Math.random() > 0.5 ? 'foot' : 'car',
+                callType: Math.random() > 0.5 ? 'suspicious youths' : 'sporting event gone wrong',
+                createdAt: new Date(),
+                updatedAt: new Date(),
             };
             const entity = this.repository.create(partialEntity);
             await this.repository.save(entity);

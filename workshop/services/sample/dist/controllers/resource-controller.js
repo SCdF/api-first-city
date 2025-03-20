@@ -1,15 +1,18 @@
-import { Router } from 'express';
-import { HttpStatus, ValidationError } from '@city-services/common';
-import { ResourceService } from '../services/resource-service';
-import { ResourceRepository } from '../repositories/resource-repository';
-import { validateOpenAPI } from '../middleware/openapi-validator.middleware';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resourceRouter = exports.ResourceController = void 0;
+const express_1 = require("express");
+const common_1 = require("@city-services/common");
+const resource_service_1 = require("../services/resource-service");
+const resource_repository_1 = require("../repositories/resource-repository");
+const openapi_validator_middleware_1 = require("../middleware/openapi-validator.middleware");
 /**
  * Controller for resource endpoints
  */
-export class ResourceController {
+class ResourceController {
     constructor(service) {
         this.service = service;
-        this.router = Router();
+        this.router = (0, express_1.Router)();
         this.setupRoutes();
     }
     /**
@@ -17,7 +20,7 @@ export class ResourceController {
      */
     setupRoutes() {
         // Add validation middleware to all routes
-        this.router.use(validateOpenAPI());
+        this.router.use((0, openapi_validator_middleware_1.validateOpenAPI)());
         // Get all resources
         this.router.get('/', this.getResources.bind(this));
         // Create a new resource
@@ -59,7 +62,7 @@ export class ResourceController {
         try {
             const { id } = req.params;
             if (!id) {
-                throw new ValidationError({ path: 'id', message: 'Resource ID is required' });
+                throw new common_1.ValidationError({ path: 'id', message: 'Resource ID is required' });
             }
             const resource = await this.service.getResourceById(id);
             res.json(resource);
@@ -74,7 +77,7 @@ export class ResourceController {
     async createResource(req, res, next) {
         try {
             const newResource = await this.service.createResource(req.body);
-            res.status(HttpStatus.CREATED).json(newResource);
+            res.status(common_1.HttpStatus.CREATED).json(newResource);
         }
         catch (error) {
             next(error);
@@ -87,7 +90,7 @@ export class ResourceController {
         try {
             const { id } = req.params;
             if (!id) {
-                throw new ValidationError({ path: 'id', message: 'Resource ID is required' });
+                throw new common_1.ValidationError({ path: 'id', message: 'Resource ID is required' });
             }
             const updatedResource = await this.service.updateResource(id, req.body);
             res.json(updatedResource);
@@ -103,17 +106,18 @@ export class ResourceController {
         try {
             const { id } = req.params;
             if (!id) {
-                throw new ValidationError({ path: 'id', message: 'Resource ID is required' });
+                throw new common_1.ValidationError({ path: 'id', message: 'Resource ID is required' });
             }
             await this.service.deleteResource(id);
-            res.status(HttpStatus.NO_CONTENT).end();
+            res.status(common_1.HttpStatus.NO_CONTENT).end();
         }
         catch (error) {
             next(error);
         }
     }
 }
+exports.ResourceController = ResourceController;
 // Create router instance with service
-const resourceService = new ResourceService(new ResourceRepository());
+const resourceService = new resource_service_1.ResourceService(new resource_repository_1.ResourceRepository());
 const resourceController = new ResourceController(resourceService);
-export const resourceRouter = resourceController.getRouter();
+exports.resourceRouter = resourceController.getRouter();

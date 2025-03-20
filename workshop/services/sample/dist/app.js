@@ -1,44 +1,50 @@
-import express from 'express';
-import path from 'path';
-import { Logger, errorHandler } from '@city-services/common';
-import cors from 'cors';
-import 'reflect-metadata'; // Required for TypeORM
-import config from './config';
-import { ResourceRepository } from './repositories/resource-repository';
-import { ResourceService } from './services/resource-service';
-import { ResourceController } from './controllers/resource-controller';
-import { HealthController } from './controllers/health-controller';
-import { setupSwaggerUI } from './swagger';
-const logger = new Logger({ service: config.serviceName });
-export async function createApp() {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createApp = createApp;
+const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
+const common_1 = require("@city-services/common");
+const cors_1 = __importDefault(require("cors"));
+require("reflect-metadata"); // Required for TypeORM
+const config_1 = __importDefault(require("./config/config"));
+const resource_repository_1 = require("./repositories/resource-repository");
+const resource_service_1 = require("./services/resource-service");
+const resource_controller_1 = require("./controllers/resource-controller");
+const health_controller_1 = require("./controllers/health-controller");
+const swagger_middleware_1 = require("./middleware/swagger.middleware");
+const logger = new common_1.Logger({ service: config_1.default.serviceName });
+async function createApp() {
     // Create Express application
-    const app = express();
+    const app = (0, express_1.default)();
     // Middleware
-    app.use(express.json());
-    app.use(cors());
+    app.use(express_1.default.json());
+    app.use((0, cors_1.default)());
     // Setup Swagger UI
-    const apiSpecPath = path.join(__dirname, '../api/openapi.yaml');
-    setupSwaggerUI(app, apiSpecPath);
+    const apiSpecPath = path_1.default.join(__dirname, '../api/openapi.yaml');
+    (0, swagger_middleware_1.setupSwaggerUI)(app, apiSpecPath);
     // Create repositories
     logger.info('Creating repositories...');
-    const resourceRepository = new ResourceRepository();
+    const resourceRepository = new resource_repository_1.ResourceRepository();
     // Create services
     logger.info('Creating services...');
-    const resourceService = new ResourceService(resourceRepository);
+    const resourceService = new resource_service_1.ResourceService(resourceRepository);
     // Create controllers
     logger.info('Creating controllers...');
-    const resourceController = new ResourceController(resourceService);
-    const healthController = new HealthController(config.version);
+    const resourceController = new resource_controller_1.ResourceController(resourceService);
+    const healthController = new health_controller_1.HealthController(config_1.default.version);
     // Register routes
     logger.info('Registering routes...');
     app.use('/resources', resourceController.getRouter());
     app.use('/health', healthController.getRouter());
     // Error handling middleware
     app.use((err, req, res, next) => {
-        errorHandler(err, req, res, next);
+        (0, common_1.errorHandler)(err, req, res, next);
     });
     // Seed data in development mode
-    if (config.environment === 'development') {
+    if (config_1.default.environment === 'development') {
         try {
             logger.info('Development mode: Seeding initial data...');
             await resourceService.seedData(20);

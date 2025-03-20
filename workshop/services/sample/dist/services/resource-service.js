@@ -1,4 +1,7 @@
-import { NotFoundError } from '@city-services/common';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResourceService = void 0;
+const common_1 = require("@city-services/common");
 /**
  * Service class responsible for handling resource business logic.
  * Implements operations for managing resources including CRUD operations
@@ -6,7 +9,7 @@ import { NotFoundError } from '@city-services/common';
  *
  * @class ResourceService
  */
-export class ResourceService {
+class ResourceService {
     /**
      * Creates an instance of ResourceService.
      *
@@ -37,7 +40,7 @@ export class ResourceService {
     async getResourceById(id) {
         const resource = await this.repository.findById(id);
         if (!resource) {
-            throw new NotFoundError('Resource', id);
+            throw new common_1.NotFoundError('Resource', id);
         }
         return resource;
     }
@@ -63,7 +66,7 @@ export class ResourceService {
     async updateResource(id, data) {
         const updatedResource = await this.repository.update(id, data);
         if (!updatedResource) {
-            throw new NotFoundError('Resource', id);
+            throw new common_1.NotFoundError('Resource', id);
         }
         return updatedResource;
     }
@@ -78,7 +81,7 @@ export class ResourceService {
     async deleteResource(id) {
         const deleted = await this.repository.delete(id);
         if (!deleted) {
-            throw new NotFoundError('Resource', id);
+            throw new common_1.NotFoundError('Resource', id);
         }
     }
     /**
@@ -92,3 +95,4 @@ export class ResourceService {
         await this.repository.seed(count);
     }
 }
+exports.ResourceService = ResourceService;

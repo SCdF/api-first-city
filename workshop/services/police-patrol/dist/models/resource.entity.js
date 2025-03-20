@@ -1,3 +1,4 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,51 +8,48 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { ResourceStatus } from '../generated/types.gen';
-/**
- * TypeORM entity representing a resource in the database.
- * Implements the Resource interface from the OpenAPI specification,
- * excluding the timestamp fields which are handled by TypeORM decorators.
- *
- * @class ResourceEntity
- * @implements {Omit<Resource, 'createdAt' | 'updatedAt'>}
- */
-let ResourceEntity = class ResourceEntity {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PolicePatrolEntity = void 0;
+const typeorm_1 = require("typeorm");
+let PolicePatrolEntity = class PolicePatrolEntity {
 };
+exports.PolicePatrolEntity = PolicePatrolEntity;
 __decorate([
-    PrimaryGeneratedColumn('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], ResourceEntity.prototype, "id", void 0);
+], PolicePatrolEntity.prototype, "id", void 0);
 __decorate([
-    Column(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], ResourceEntity.prototype, "name", void 0);
+], PolicePatrolEntity.prototype, "caseId", void 0);
 __decorate([
-    Column({ nullable: true }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], ResourceEntity.prototype, "description", void 0);
+], PolicePatrolEntity.prototype, "location", void 0);
 __decorate([
-    Column({
-        type: 'enum',
-        enum: ResourceStatus,
-        default: ResourceStatus.PENDING
-    }),
-    __metadata("design:type", String)
-], ResourceEntity.prototype, "status", void 0);
-__decorate([
-    Column('simple-array', { nullable: true }),
-    __metadata("design:type", Array)
-], ResourceEntity.prototype, "tags", void 0);
-__decorate([
-    CreateDateColumn({ type: 'timestamp with time zone' }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", Date)
-], ResourceEntity.prototype, "createdAt", void 0);
+], PolicePatrolEntity.prototype, "startedAt", void 0);
 __decorate([
-    UpdateDateColumn({ type: 'timestamp with time zone' }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
-], ResourceEntity.prototype, "updatedAt", void 0);
-ResourceEntity = __decorate([
-    Entity('resource')
-], ResourceEntity);
-export { ResourceEntity };
+], PolicePatrolEntity.prototype, "endedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], PolicePatrolEntity.prototype, "patrolType", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], PolicePatrolEntity.prototype, "callType", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
+    __metadata("design:type", Date)
+], PolicePatrolEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
+    __metadata("design:type", Date)
+], PolicePatrolEntity.prototype, "updatedAt", void 0);
+exports.PolicePatrolEntity = PolicePatrolEntity = __decorate([
+    (0, typeorm_1.Entity)('police-patrol')
+], PolicePatrolEntity);
