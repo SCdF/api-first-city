@@ -1,17 +1,16 @@
 import { Repository, DeepPartial, QueryRunner, DataSource } from 'typeorm';
 import { dataSource } from '../config/database';
-import { ResourceEntity } from '../models/resource.entity';
+import { PolicePatrolEntity } from '../models/resource.entity';
 import {
-  type Resource,
-  type ResourceCreate,
-  type ResourceUpdate,
-  type ResourceList,
-  ResourceStatus,
+  type PolicePatrol,
+  type PolicePatrolCreate,
+  type PolicePatrolUpdate,
+  type PolicePatrolList,
 } from '../generated/types.gen';
 
 /**
  * Options for filtering and paginating resource queries.
- * 
+ *
  * @interface FindAllOptions
  * @property {string} [name] - Optional name filter for resources
  * @property {number} [page] - Page number for pagination (1-based indexing)
@@ -26,64 +25,70 @@ interface FindAllOptions {
 /**
  * Repository class for managing resource entities in the database.
  * Provides data access methods and implements TypeORM repository pattern.
- * 
+ *
  * @class ResourceRepository
  */
 export class ResourceRepository {
-  private repository: Repository<ResourceEntity>;
+  private repository: Repository<PolicePatrolEntity>;
   private dataSource: DataSource;
 
   /**
    * Creates an instance of ResourceRepository.
-   * Initializes the TypeORM repository for ResourceEntity.
-   * 
+   * Initializes the TypeORM repository for PolicePatrolEntity.
+   *
    * @constructor
    * @param {DataSource} [customDataSource] - Optional custom data source for testing
    */
   constructor(customDataSource?: DataSource) {
     this.dataSource = customDataSource || dataSource;
-    this.repository = this.dataSource.getRepository(ResourceEntity);
+    this.repository = this.dataSource.getRepository(PolicePatrolEntity);
   }
 
   /**
    * Gets the repository instance for the current transaction context.
    * If no transaction is provided, returns the default repository.
-   * 
+   *
    * @private
    * @param {QueryRunner} [queryRunner] - Optional query runner for transaction context
-   * @returns {Repository<ResourceEntity>} The repository instance to use
+   * @returns {Repository<PolicePatrolEntity>} The repository instance to use
    */
-  private getRepository(queryRunner?: QueryRunner): Repository<ResourceEntity> {
-    return queryRunner ? queryRunner.manager.getRepository(ResourceEntity) : this.repository;
+  private getRepository(queryRunner?: QueryRunner): Repository<PolicePatrolEntity> {
+    return queryRunner ? queryRunner.manager.getRepository(PolicePatrolEntity) : this.repository;
   }
 
   /**
-   * Maps a ResourceEntity to a Resource type.
-   * 
+   * Maps a PolicePatrolEntity to a Resource type.
+   *
    * @private
-   * @param {ResourceEntity} entity - The entity to map
+   * @param {PolicePatrolEntity} entity - The entity to map
    * @returns {Resource} The mapped resource
    */
-  private mapEntityToResource(entity: ResourceEntity): Resource {
+  private mapEntityToResource(entity: PolicePatrolEntity): PolicePatrol {
     return {
       id: entity.id,
-      name: entity.name,
-      description: entity.description ?? '',
-      status: entity.status,
-      tags: entity.tags,
+      caseId: entity.caseId,
+      location: entity.location,
+      startedAt: entity.startedAt instanceof Date ? entity.startedAt : new Date(entity.startedAt),
+      endedAt: entity.endedAt
+        ? entity.endedAt instanceof Date
+          ? entity.endedAt
+          : new Date(entity.endedAt)
+        : undefined,
+      patrolType: entity.patrolType,
+      callType: entity.callType,
       createdAt: entity.createdAt instanceof Date ? entity.createdAt : new Date(entity.createdAt),
-      updatedAt: entity.updatedAt instanceof Date ? entity.updatedAt : new Date(entity.updatedAt)
+      updatedAt: entity.updatedAt instanceof Date ? entity.updatedAt : new Date(entity.updatedAt),
     };
   }
 
   /**
    * Retrieves a paginated list of resources with optional filtering.
-   * 
+   *
    * @async
    * @param {FindAllOptions} [options] - Optional parameters for filtering and pagination
    * @returns {Promise<ResourceList>} A promise that resolves to a paginated list of resources
    */
-  async findAll(options?: FindAllOptions): Promise<ResourceList> {
+  async findAll(options?: FindAllOptions): Promise<PolicePatrolList> {
     const page = options?.page ?? 1;
     const page_size = options?.page_size ?? 20;
 
@@ -109,7 +114,7 @@ export class ResourceRepository {
     const items = await queryBuilder.getMany();
 
     return {
-      items: items as unknown as Resource[],
+      items: items as unknown as PolicePatrol[],
       total,
       page,
       page_size,
@@ -118,32 +123,32 @@ export class ResourceRepository {
 
   /**
    * Finds a resource by its unique identifier.
-   * 
+   *
    * @async
    * @param {string} id - The unique identifier of the resource
    * @param {QueryRunner} [queryRunner] - Optional query runner for transaction context
    * @returns {Promise<Resource | null>} A promise that resolves to the found resource or null if not found
    */
-  async findById(id: string, queryRunner?: QueryRunner): Promise<Resource | null> {
+  async findById(id: string, queryRunner?: QueryRunner): Promise<PolicePatrol | null> {
     const repository = this.getRepository(queryRunner);
     const entity = await repository.findOneBy({ id });
-    return entity as unknown as Resource | null;
+    return entity as unknown as PolicePatrol | null;
   }
 
   /**
    * Creates a new resource within an optional transaction.
-   * 
+   *
    * @async
    * @param {ResourceCreate} data - The resource data to create
    * @param {QueryRunner} [queryRunner] - Optional query runner for transaction context
    * @returns {Promise<Resource>} A promise that resolves to the created resource
    */
-  async create(data: ResourceCreate, queryRunner?: QueryRunner): Promise<Resource> {
+  async create(data: PolicePatrolCreate, queryRunner?: QueryRunner): Promise<PolicePatrol> {
     const repository = this.getRepository(queryRunner);
     const entity = repository.create({
       ...data,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     const saved = await repository.save(entity);
@@ -152,14 +157,18 @@ export class ResourceRepository {
 
   /**
    * Updates an existing resource within an optional transaction.
-   * 
+   *
    * @async
    * @param {string} id - The ID of the resource to update
    * @param {ResourceUpdate} data - The update data
    * @param {QueryRunner} [queryRunner] - Optional query runner for transaction context
    * @returns {Promise<Resource | null>} A promise that resolves to the updated resource or null if not found
    */
-  async update(id: string, data: ResourceUpdate, queryRunner?: QueryRunner): Promise<Resource | null> {
+  async update(
+    id: string,
+    data: PolicePatrolUpdate,
+    queryRunner?: QueryRunner
+  ): Promise<PolicePatrol | null> {
     const repository = this.getRepository(queryRunner);
     const existing = await repository.findOne({ where: { id } });
 
@@ -169,7 +178,7 @@ export class ResourceRepository {
 
     const updated = repository.merge(existing, {
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     const saved = await repository.save(updated);
@@ -178,7 +187,7 @@ export class ResourceRepository {
 
   /**
    * Deletes a resource within an optional transaction.
-   * 
+   *
    * @async
    * @param {string} id - The ID of the resource to delete
    * @param {QueryRunner} [queryRunner] - Optional query runner for transaction context
@@ -192,21 +201,22 @@ export class ResourceRepository {
 
   /**
    * Seeds the repository with sample data for development/testing purposes.
-   * 
+   *
    * @async
    * @param {number} [count=10] - The number of sample resources to create
    * @returns {Promise<void>} A promise that resolves when seeding is complete
    */
   async seed(count = 10): Promise<void> {
-    const statuses = Object.values(ResourceStatus);
-
     for (let i = 0; i < count; i++) {
-      const status = statuses[i % statuses.length];
-      const partialEntity: DeepPartial<ResourceEntity> = {
-        name: `Resource ${i + 1}`,
-        description: `This is a sample resource ${i + 1}`,
-        status: status as ResourceStatus, // Cast to ensure type safety
-        tags: [`tag-${i % 3}`, `sample`, `type-${i % 5}`],
+      const partialEntity: DeepPartial<PolicePatrolEntity> = {
+        caseId: `CASE-${Math.floor(1000 + Math.random() * 9000)}`,
+        location: `Location ${i + 1}`,
+        startedAt: new Date(),
+        endedAt: Math.random() > 0.5 ? new Date(Date.now() + Math.random() * 10000000) : undefined,
+        patrolType: Math.random() > 0.5 ? 'foot' : 'car',
+        callType: Math.random() > 0.5 ? 'suspicious youths' : 'sporting event gone wrong',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       const entity = this.repository.create(partialEntity);
@@ -214,4 +224,3 @@ export class ResourceRepository {
     }
   }
 }
-

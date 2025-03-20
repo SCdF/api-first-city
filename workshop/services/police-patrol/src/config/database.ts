@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { ResourceEntity } from '../models/resource.entity';
+import { PolicePatrolEntity } from '../models/resource.entity';
 import config from './config';
 import { Logger } from '@city-services/common';
 
@@ -15,10 +15,10 @@ export const dataSourceOptions: DataSourceOptions = {
   database: config.db.database,
   synchronize: config.environment === 'development',
   logging: config.environment === 'development',
-  entities: [ResourceEntity],
+  entities: [PolicePatrolEntity],
   migrations: ['../../migrations/*.{ts,js}'],
-  migrationsRun: true
-}
+  migrationsRun: true,
+};
 
 export const dataSource = new DataSource(dataSourceOptions);
 

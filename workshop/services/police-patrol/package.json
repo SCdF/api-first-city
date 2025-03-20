@@ -9,7 +9,7 @@
     "dev": "node ../../scripts/load-env.js ts-node --require reflect-metadata src/index.ts",
     "test": "vitest run",
     "test:types": "tsd",
-    "lint": "eslint . --ext .ts",
+    "lint": "npx eslint . --ext .ts",
     "validate-api": "swagger-cli validate api/openapi.yaml",
     "clean": "rimraf dist",
     "generate:api": "openapi-ts",

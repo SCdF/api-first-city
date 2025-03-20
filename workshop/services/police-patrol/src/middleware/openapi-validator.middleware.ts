@@ -7,7 +7,6 @@ import * as schemas from '../generated/zod.gen';
 
 type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
-
 interface RouteConfig {
   method: HttpMethod;
   path: string;
@@ -22,61 +21,69 @@ interface RouteConfig {
 // Map of routes to their schema configurations
 const routeSchemas = new Map<string, RouteConfig>([
   // GET /resources
-  ['/resources:get', {
-    method: 'get',
-    path: '/resources',
-    requestSchema: {
-      query: z.object({
-        page: z.coerce.number().int().nonnegative().optional(),
-        page_size: z.coerce.number().int().positive().optional(),
-        name: z.string().optional(),
-      }).strict(),
+  [
+    '/resources:get',
+    {
+      method: 'get',
+      path: '/resources',
+      requestSchema: {
+        query: z
+          .object({
+            page: z.coerce.number().int().nonnegative().optional(),
+            page_size: z.coerce.number().int().positive().optional(),
+            name: z.string().optional(),
+          })
+          .strict(),
+      },
+      responseSchema: schemas.zListPolicePatrolsResponse,
     },
-    responseSchema: schemas.zListResourcesResponse,
-  }],
+  ],
   // POST /resources
-  ['/resources:post', {
-    method: 'post',
-    path: '/resources',
-    requestSchema: {
-      body: schemas.zResourceCreate,
+  [
+    '/resources:post',
+    {
+      method: 'post',
+      path: '/resources',
+      requestSchema: {
+        body: schemas.zPolicePatrolCreate,
+      },
+      responseSchema: schemas.zCreatePolicePatrolResponse,
     },
-    responseSchema: schemas.zCreateResourceResponse,
-  }],
+  ],
   // GET /resources/:id
-  ['/resources/{id}:get', {
-    method: 'get',
-    path: '/resources/:id',
-    requestSchema: {
-      params: z.object({ id: z.string() }).strict(),
+  [
+    '/resources/{id}:get',
+    {
+      method: 'get',
+      path: '/resources/:id',
+      requestSchema: {
+        params: z.object({ id: z.string() }).strict(),
+      },
+      responseSchema: schemas.zGetPolicePatrolResponse,
     },
-    responseSchema: schemas.zGetResourceResponse,
-  }],
+  ],
   // PUT /resources/:id
-  ['/resources/{id}:put', {
-    method: 'put',
-    path: '/resources/:id',
-    requestSchema: {
-      params: z.object({ id: z.string() }).strict(),
-      body: schemas.zResourceUpdate,
+  [
+    '/resources/{id}:put',
+    {
+      method: 'put',
+      path: '/resources/:id',
+      requestSchema: {
+        params: z.object({ id: z.string() }).strict(),
+        body: schemas.zPolicePatrolUpdate,
+      },
+      responseSchema: schemas.zUpdatePolicePatrolResponse,
     },
-    responseSchema: schemas.zUpdateResourceResponse,
-  }],
-  // DELETE /resources/:id
-  ['/resources/{id}:delete', {
-    method: 'delete',
-    path: '/resources/:id',
-    requestSchema: {
-      params: z.object({ id: z.string() }).strict(),
-    },
-    responseSchema: schemas.zDeleteResourceResponse,
-  }],
+  ],
   // GET /health
-  ['/health:get', {
-    method: 'get',
-    path: '/health',
-    responseSchema: schemas.zHealthCheckResponse,
-  }],
+  [
+    '/health:get',
+    {
+      method: 'get',
+      path: '/health',
+      responseSchema: schemas.zHealthCheckResponse,
+    },
+  ],
 ]);
 
 /**
@@ -103,7 +110,7 @@ async function validateRequestData(data: any, schema: z.ZodType) {
     return await schema.parseAsync(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const details = error.errors.map(err => ({
+      const details = error.errors.map((err) => ({
         path: err.path.join('.'),
         message: err.message,
       }));
@@ -140,13 +147,13 @@ export function validateOpenAPI() {
 
       // Capture the response to validate it
       const originalJson = res.json;
-      res.json = function(body: any) {
+      res.json = function (body: any) {
         if (config.responseSchema) {
           try {
             body = config.responseSchema.parse(body);
           } catch (error) {
             if (error instanceof z.ZodError) {
-              const details = error.errors.map(err => ({
+              const details = error.errors.map((err) => ({
                 path: err.path.join('.'),
                 message: err.message,
               }));
@@ -165,4 +172,4 @@ export function validateOpenAPI() {
       next(error);
     }
   };
-} 
+}

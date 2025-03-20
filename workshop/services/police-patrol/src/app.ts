@@ -5,8 +5,8 @@ import cors from 'cors';
 import 'reflect-metadata'; // Required for TypeORM
 
 import config from './config/config';
-import { ResourceRepository } from './repositories/resource-repository';
-import { ResourceService } from './services/resource-service';
+import { ResourceRepository } from './repositories/police-repository';
+import { PolicePatrolService } from './services/resource-service';
 import { ResourceController } from './controllers/resource-controller';
 import { HealthController } from './controllers/health-controller';
 import { setupSwaggerUI } from './middleware/swagger.middleware';
@@ -31,7 +31,7 @@ export async function createApp(): Promise<Application> {
 
   // Create services
   logger.info('Creating services...');
-  const resourceService = new ResourceService(resourceRepository);
+  const resourceService = new PolicePatrolService(resourceRepository);
 
   // Create controllers
   logger.info('Creating controllers...');

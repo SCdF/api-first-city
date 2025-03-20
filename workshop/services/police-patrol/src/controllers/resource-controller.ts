@@ -1,18 +1,17 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import { HttpStatus, ValidationError } from '@city-services/common';
-import { ResourceService } from '../services/resource-service';
-import { ResourceRepository } from '../repositories/resource-repository';
+import { PolicePatrolService } from '../services/resource-service';
+import { ResourceRepository } from '../repositories/police-repository';
 import { validateOpenAPI } from '../middleware/openapi-validator.middleware';
-
 
 /**
  * Controller for resource endpoints
  */
 export class ResourceController {
   private router: Router;
-  private service: ResourceService;
+  private service: PolicePatrolService;
 
-  constructor(service: ResourceService) {
+  constructor(service: PolicePatrolService) {
     this.service = service;
     this.router = Router();
     this.setupRoutes();
@@ -36,9 +35,6 @@ export class ResourceController {
 
     // Update a resource
     this.router.put('/:id', this.updateResource.bind(this));
-
-    // Delete a resource
-    this.router.delete('/:id', this.deleteResource.bind(this));
   }
 
   /**
@@ -54,7 +50,7 @@ export class ResourceController {
   async getResources(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { name, page, page_size } = req.query;
-      const resources = await this.service.getResources({
+      const resources = await this.service.getPolicePatrols({
         name: name as string,
         page: Number.parseInt(page as string),
         page_size: Number.parseInt(page_size as string),
@@ -74,7 +70,7 @@ export class ResourceController {
       if (!id) {
         throw new ValidationError({ path: 'id', message: 'Resource ID is required' });
       }
-      const resource = await this.service.getResourceById(id);
+      const resource = await this.service.getPolicePatrolById(id);
       res.json(resource);
     } catch (error) {
       next(error);
@@ -86,7 +82,7 @@ export class ResourceController {
    */
   async createResource(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const newResource = await this.service.createResource(req.body);
+      const newResource = await this.service.createPolicePatrol(req.body);
       res.status(HttpStatus.CREATED).json(newResource);
     } catch (error) {
       next(error);
@@ -102,24 +98,8 @@ export class ResourceController {
       if (!id) {
         throw new ValidationError({ path: 'id', message: 'Resource ID is required' });
       }
-      const updatedResource = await this.service.updateResource(id, req.body);
+      const updatedResource = await this.service.updatePolicePatrol(id, req.body);
       res.json(updatedResource);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /**
-   * Handle DELETE /resources/:id
-   */
-  async deleteResource(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { id } = req.params;
-      if (!id) {
-        throw new ValidationError({ path: 'id', message: 'Resource ID is required' });
-      }
-      await this.service.deleteResource(id);
-      res.status(HttpStatus.NO_CONTENT).end();
     } catch (error) {
       next(error);
     }
@@ -127,6 +107,6 @@ export class ResourceController {
 }
 
 // Create router instance with service
-const resourceService = new ResourceService(new ResourceRepository());
+const resourceService = new PolicePatrolService(new ResourceRepository());
 const resourceController = new ResourceController(resourceService);
 export const resourceRouter = resourceController.getRouter();
