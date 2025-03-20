@@ -164,34 +164,6 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - oauth2: ['write:sample']
-    delete:
-      summary: Delete a police patrol
-      description: Remove a police patrol from the system
-      operationId: deletePolicePatrol
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Police patrol ID
-      responses:
-        '204':
-          description: Police patrol deleted
-        '404':
-          description: Police patrol not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-        - oauth2: ['write:sample']
   /health:
     get:
       summary: Health check
