@@ -1,7 +1,7 @@
 {
   "name": "@city-services/police-patrol",
   "version": "1.0.0",
-  "description": "Popo, on patrol",
+  "description": "(Woop, woop) That's the sound of da police",
   "main": "dist/index.js",
   "scripts": {
     "build": "yarn generate:api && tsc -p tsconfig.json && mkdir -p dist && touch dist/.turbo-cache-marker",
