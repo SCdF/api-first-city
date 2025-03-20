@@ -2,52 +2,6 @@
 
 import { z } from 'zod';
 
-export const zResource = z.object({
-    id: z.string(),
-    caseId: z.string().optional(),
-    location: z.string(),
-    startedAt: z.string().datetime(),
-    endedAt: z.string().datetime().optional(),
-    patrolType: z.enum([
-        'car',
-        'foot',
-        'bike',
-        'horse'
-    ]),
-    callType: z.string().optional(),
-    createdAt: z.string().datetime(),
-    updatedAt: z.string().datetime()
-});
-
-export const zResourceCreate = z.object({
-    caseId: z.string().optional(),
-    location: z.string(),
-    startedAt: z.string().datetime(),
-    endedAt: z.string().datetime().optional(),
-    patrolType: z.enum([
-        'car',
-        'foot',
-        'bike',
-        'horse'
-    ]),
-    callType: z.string().optional()
-});
-
-export const zResourceUpdate = z.object({
-    caseId: z.string().optional(),
-    location: z.string().optional(),
-    startedAt: z.string().datetime().optional(),
-    endedAt: z.string().datetime().optional(),
-    callType: z.string().optional()
-});
-
-export const zResourceList = z.object({
-    items: z.array(zResource),
-    total: z.number(),
-    page: z.number(),
-    page_size: z.number()
-});
-
 export const zPolicePatrol = z.object({
     id: z.string(),
     caseId: z.string().optional(),
