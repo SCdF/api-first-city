@@ -192,6 +192,189 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - oauth2: ['write:sample']
+  /police-patrols:
+    get:
+      summary: List police patrols
+      description: Retrieve a paginated list of police patrols
+      operationId: listPolicePatrols
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number for pagination
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Number of items per page
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Filter police patrols by name
+      responses:
+        '200':
+          description: List of police patrols
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicePatrolList'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2: ['read:sample']
+    post:
+      summary: Create a new police patrol
+      description: Create a new police patrol with the provided data
+      operationId: createPolicePatrol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicePatrolCreate'
+      responses:
+        '201':
+          description: Police patrol created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicePatrol'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2: ['write:sample']
+  /police-patrols/{id}:
+    get:
+      summary: Get a police patrol by ID
+      description: Retrieve detailed information about a specific police patrol
+      operationId: getPolicePatrol
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Police patrol ID
+      responses:
+        '200':
+          description: Police patrol details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicePatrol'
+        '404':
+          description: Police patrol not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2: ['read:sample']
+    put:
+      summary: Update a police patrol
+      description: Update an existing police patrol with new data
+      operationId: updatePolicePatrol
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Police patrol ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicePatrolUpdate'
+      responses:
+        '200':
+          description: Police patrol updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicePatrol'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Police patrol not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2: ['write:sample']
+    delete:
+      summary: Delete a police patrol
+      description: Remove a police patrol from the system
+      operationId: deletePolicePatrol
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Police patrol ID
+      responses:
+        '204':
+          description: Police patrol deleted
+        '404':
+          description: Police patrol not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2: ['write:sample']
   /health:
     get:
       summary: Health check
@@ -334,6 +517,133 @@ components:
         total:
           type: number
           description: Total number of resources matching the query
+        page:
+          type: number
+          description: Current page number
+        page_size:
+          type: number
+          description: Number of items per page
+      required:
+        - items
+        - total
+        - page
+        - page_size
+
+    PolicePatrol:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID for the police patrol
+        caseId:
+          type: string
+          description: Case ID
+        location:
+          type: string
+          description: Location of the police patrol
+        startedAt:
+          type: string
+          format: date-time
+          description: When the police patrol started
+        endedAt:
+          type: string
+          format: date-time
+          description: When the police patrol ended
+        patrolType:
+          enum:
+            - car
+            - foot
+            - bike
+            - horse
+          description: Type of the police patrol
+        callType:
+          type: string
+          # TODO: make this an enum, talk to dispatch team
+          description: Callout type
+        createdAt:
+          type: string
+          format: date-time
+          description: When the police patrol was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the police patrol was last updated
+      required:
+        - id
+        - location
+        - startedAt
+        - patrolType
+        - createdAt
+        - updatedAt
+
+    # FIXME: it sucks I have to duplicate this
+    PolicePatrolCreate:
+      type: object
+      properties:
+        caseId:
+          type: string
+          description: Case ID
+        location:
+          type: string
+          description: Location of the police patrol
+        startedAt:
+          type: string
+          format: date-time
+          description: When the police patrol starts
+        endedAt:
+          type: string
+          format: date-time
+          description: When the police patrol ended
+        patrolType:
+          enum:
+            - car
+            - foot
+            - bike
+            - horse
+          description: Type of the police patrol
+        callType:
+          type: string
+          # TODO: make this an enum, talk to dispatch team
+          description: Callout type
+      required:
+        - location
+        - startedAt
+        - patrolType
+
+    # FIXME: it sucks I have to duplicate this
+    PolicePatrolUpdate:
+      type: object
+      properties:
+        caseId:
+          type: string
+          description: Case ID
+        location:
+          type: string
+          description: Location of the police patrol
+        startedAt:
+          type: string
+          format: date-time
+          description: When the police patrol starts, can't be updated if the patrol has already started
+        endedAt:
+          type: string
+          format: date-time
+          description: When the police patrol ends
+        callType:
+          type: string
+          # TODO: make this an enum, talk to dispatch team
+          description: Callout type
+
+    PolicePatrolList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicePatrol'
+          description: List of police patrols
+        total:
+          type: number
+          description: Total number of police patrols matching the query
         page:
           type: number
           description: Current page number
