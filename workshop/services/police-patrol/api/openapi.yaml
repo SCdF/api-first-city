@@ -257,49 +257,62 @@ components:
           description: When the resource was last updated
       required:
         - id
-        - name
-        - status
+        - location
+        - startedAt
+        - patrolType
         - createdAt
         - updatedAt
 
+    # FIXME: it sucks I have to duplicate this
     ResourceCreate:
       type: object
       properties:
-        name:
+        location:
           type: string
-          description: Name of the resource
-        description:
+          description: Location of the Patrol
+        startedAt:
           type: string
-          description: Detailed description of the resource
-        status:
-          $ref: '#/components/schemas/ResourceStatus'
-          description: Initial status of the resource
-          default: active
-        tags:
-          type: array
-          items:
-            type: string
-          description: Tags associated with the resource
+          format: date-time
+          description: When the patrol starts
+        endedAt:
+          type: string
+          format: date-time
+          description: When the patrol ended
+        patrolType:
+          enum:
+            - car
+            - foot
+            - bike
+            - horse
+          description: Type of the patrol
+        callType:
+          type: string
+          # TODO: make this an enum, talk to dispatch team
+          description: Callout type
       required:
-        - name
+        - location
+        - startedAt
+        - patrolType
 
+    # FIXME: it sucks I have to duplicate this
     ResourceUpdate:
       type: object
       properties:
-        name:
+        location:
           type: string
-          description: Updated name of the resource
-        description:
+          description: Location of the Patrol
+        startedAt:
           type: string
-          description: Updated description of the resource
-        status:
-          $ref: '#/components/schemas/ResourceStatus'
-          description: Updated status of the resource
-        tags:
-          type: array
-          items:
-            type: string
-          description: Updated tags for the resource
+          format: date-time
+          description: When the patrol starts, can't be updated if the patrol has already started
+        endedAt:
+          type: string
+          format: date-time
+          description: When the patrol ends
+        callType:
+          type: string
+          # TODO: make this an enum, talk to dispatch team
+          description: Callout type
 
     ResourceList:
       type: object
