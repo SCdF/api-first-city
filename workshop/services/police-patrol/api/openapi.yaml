@@ -224,7 +224,10 @@ components:
       properties:
         id:
           type: string
-          description: Unique identifier for the resource
+          description: Unique ID for the patrol
+        caseId:
+          type: string
+          description: Case ID
         location:
           type: string
           description: Location of the Patrol
@@ -267,6 +270,9 @@ components:
     ResourceCreate:
       type: object
       properties:
+        caseId:
+          type: string
+          description: Case ID
         location:
           type: string
           description: Location of the Patrol
@@ -298,6 +304,9 @@ components:
     ResourceUpdate:
       type: object
       properties:
+        caseId:
+          type: string
+          description: Case ID
         location:
           type: string
           description: Location of the Patrol
